@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "charts.name" . }}
+  name: {{ .Chart.Name }}
   labels:
-    {{- include ".Values.labels" . | nindent 4 }}
+    app: nodejs
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include ".Values.labels" . | nindent 6 }}
+      app: nodejs
   template:
     metadata:
       labels:
-        {{- include ".Values.labels" . | nindent 8 }}
+        app: nodejs
     spec:
       nodeSelector:
         "beta.kubernetes.io/os": linux

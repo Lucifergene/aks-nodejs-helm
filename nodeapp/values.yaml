@@ -1,12 +1,12 @@
 # Default values for the chart
 
 replicaCount: 1
-labels:
-  app: nodejs
+
 image:
   name: nodejs-aks-helm
   repository: docker.io/avik6028/nodejs-aks-helm
   tag: latest
+
 service:
   type: LoadBalancer
   port: 80
