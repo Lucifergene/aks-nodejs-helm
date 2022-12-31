@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   name: nodejs-aks-helm
-  repository: docker.io/avik6028/nodejs-aks-helm
+  repository: circlecihelmtutorial.azurecr.io/nodejs-aks-helm
   tag: latest
 
 service:
