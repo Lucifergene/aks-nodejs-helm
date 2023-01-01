@@ -22,7 +22,7 @@ jobs:
           name: Update Values.yaml
           command: |
             yq w -i $CHART_NAME/values.yaml image.tag "$CIRCLE_SHA1"
-            yq w -i $CHART_NAME/Chart.yaml version "0.$CIRCLE_WORKFLOW_ID.0"
+            yq w -i $CHART_NAME/Chart.yaml version "0.$CIRCLE_WORKFLOW_NUMBER.0"
       - add_ssh_keys:
           fingerprints:
             - "$SSH_FINGERPRINT"
@@ -54,7 +54,7 @@ jobs:
           command: helm registry login $ACR_LOGIN_SERVER --username $ACR_USERNAME --password $ACR_PASSWORD
       - run:
           name: Pushing Helm chart to registry
-          command: helm push "$CHART_NAME-0.$CIRCLE_WORKFLOW_ID.0.tgz" "oci://$ACR_LOGIN_SERVER/helm"
+          command: helm push "$CHART_NAME-0.$CIRCLE_WORKFLOW_NUMBER.0.tgz" "oci://$ACR_LOGIN_SERVER/helm"
 
   install-helm:
     executor: azure-aks/default
