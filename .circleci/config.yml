@@ -6,6 +6,7 @@ orbs:
 
 environment:
   RELEASE_VERSION: "0.$CIRCLE_WORKFLOW_ID.0"
+  PACKAGE_NAME: "$CHART_NAME-$RELEASE_VERSION.tgz"
 
 jobs:
   update-helm-chart:
@@ -51,13 +52,13 @@ jobs:
           command: git pull origin $CIRCLE_BRANCH
       - run:
           name: Packaging the Helm Chart 
-          command: helm package nodeapp           
+          command: helm package $CHART_NAME
       - run:
           name: Login to Helm Registry
-          command: helm registry login $ACR_REGISTRY_NAME.azurecr.io --username $ACR_USERNAME --password $ACR_PASSWORD
+          command: helm registry login $ACR_LOGIN_SERVER --username $ACR_USERNAME --password $ACR_PASSWORD
       - run:
           name: Pushing Helm chart to registry
-          command: helm push nodeapp-0.12.0.tgz oci://$ACR_REGISTRY_NAME.azurecr.io/helm
+          command: helm push $PACKAGE_NAME oci://$ACR_LOGIN_SERVER/helm
 
   install-helm:
     executor: azure-aks/default
@@ -85,7 +86,7 @@ jobs:
           command: sudo curl -L https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz | tar xz && sudo mv linux-amd64/helm /bin/helm && sudo rm -rf linux-amd64
       - run:
           name: helm install
-          command: bash ./script.sh $RELEASE_VERSION $NAMESPACE $CHART_NAME $ACR_LOGIN_SERVER $ACR_REGISTRY_NAME
+          command: bash ./script.sh $RELEASE_VERSION $NAMESPACE $CHART_NAME $ACR_LOGIN_SERVER
 
 workflows:
   Deploy-App-on-AKS:
