@@ -4,7 +4,7 @@ replicaCount: 1
 image:
   name: nodejs-aks-helm
   repository: circlecihelmtutorial.azurecr.io/nodejs-aks-helm
-  tag: 481e0b2d8ba9087529627d834653c64e308edddf
+  tag: dc6bcaecf364a3c6b9692de1667c0ee5d5070cd3
 service:
   type: LoadBalancer
   port: 80
