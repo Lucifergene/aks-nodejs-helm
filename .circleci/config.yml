@@ -4,10 +4,6 @@ orbs:
   azure-acr: circleci/azure-acr@0.2.1
   azure-aks: circleci/azure-aks@0.3.0
 
-environment:
-  RELEASE_VERSION: "0.$CIRCLE_WORKFLOW_ID.0"
-  PACKAGE_NAME: "$CHART_NAME-$RELEASE_VERSION.tgz"
-
 jobs:
   update-helm-chart:
     docker:
@@ -26,7 +22,7 @@ jobs:
           name: Update Values.yaml
           command: |
             yq w -i $CHART_NAME/values.yaml image.tag "$CIRCLE_SHA1"
-            yq w -i $CHART_NAME/Chart.yaml version $RELEASE_VERSION
+            yq w -i $CHART_NAME/Chart.yaml version "0.$CIRCLE_WORKFLOW_ID.0"
       - add_ssh_keys:
           fingerprints:
             - "$SSH_FINGERPRINT"
@@ -58,7 +54,7 @@ jobs:
           command: helm registry login $ACR_LOGIN_SERVER --username $ACR_USERNAME --password $ACR_PASSWORD
       - run:
           name: Pushing Helm chart to registry
-          command: helm push "$CHART_NAME-$RELEASE_VERSION.tgz" "oci://$ACR_LOGIN_SERVER/helm"
+          command: helm push "$CHART_NAME-0.$CIRCLE_WORKFLOW_ID.0.tgz" "oci://$ACR_LOGIN_SERVER/helm"
 
   install-helm:
     executor: azure-aks/default
@@ -86,7 +82,7 @@ jobs:
           command: sudo curl -L https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz | tar xz && sudo mv linux-amd64/helm /bin/helm && sudo rm -rf linux-amd64
       - run:
           name: helm install
-          command: bash ./script.sh $RELEASE_VERSION $NAMESPACE $CHART_NAME $ACR_LOGIN_SERVER
+          command: bash ./script.sh "0.$CIRCLE_WORKFLOW_ID.0" $NAMESPACE $CHART_NAME $ACR_LOGIN_SERVER
 
 workflows:
   Deploy-App-on-AKS:
