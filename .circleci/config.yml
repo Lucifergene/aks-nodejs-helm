@@ -53,13 +53,10 @@ jobs:
             helm package .
       - run:
           name: Login to Helm Registry 
-          command: |
-            helm registry login $CHART_NAME.azurecr.io \
-                --username $ACR_USERNAME \
-                --password $ACR_PASSWORD
+          command: helm registry login $ACR_REGISTRY_NAME.azurecr.io --username $ACR_USERNAME --password $ACR_PASSWORD
       - run:
           name: Pushing Helm chart to registry
-          command: helm push "$CHART_NAME-0.$CIRCLE_BUILD_NUM.0".tgz oci://$CHART_NAME.azurecr.io/helm
+          command: helm push "$CHART_NAME-0.$CIRCLE_BUILD_NUM.0".tgz oci://$ACR_REGISTRY_NAME.azurecr.io/helm
 
   install-helm:
     executor: azure-aks/default
