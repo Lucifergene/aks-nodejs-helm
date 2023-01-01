@@ -51,7 +51,7 @@ jobs:
           command: git pull origin $CIRCLE_BRANCH
       - run:
           name: Packaging the Helm Chart 
-          command: helm package ./$CHART_NAME           
+          command: helm package $CHART_NAME           
       - run:
           name: Login to Helm Registry
           command: helm registry login $ACR_REGISTRY_NAME.azurecr.io --username $ACR_USERNAME --password $ACR_PASSWORD
