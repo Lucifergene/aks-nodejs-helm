@@ -1,12 +1,10 @@
 # Default values for the chart
 
 replicaCount: 1
-
 image:
   name: nodejs-aks-helm
   repository: circlecihelmtutorial.azurecr.io/nodejs-aks-helm
-  tag: latest
-
+  tag: 85ec8a043b3a98d49059096300d717aada8dd9d8
 service:
   type: LoadBalancer
   port: 80
