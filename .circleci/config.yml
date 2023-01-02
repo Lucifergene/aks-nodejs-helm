@@ -6,8 +6,6 @@ orbs:
 
 jobs:
   update-helm-chart:
-    environment:
-      CIRCLE_WORKFLOW_NUMBER: "build-$(echo $CIRCLE_WORKFLOW_ID | grep -oE '[0-9]+')"
     docker:
       - image: cimg/base:stable
     steps:
@@ -20,11 +18,12 @@ jobs:
             $SUDO mv ./yq_linux_amd64 /usr/local/bin/yq
             $SUDO chmod +x /usr/local/bin/yq
       - checkout
+      - run: echo 'export RELEASE_TAG=$((RELEASE_NUMBER+1))' >> $BASH_ENV
       - run:
           name: Update Values.yaml
           command: |
             yq w -i $CHART_NAME/values.yaml image.tag "$CIRCLE_SHA1"
-            yq w -i $CHART_NAME/Chart.yaml version "0.$CIRCLE_WORKFLOW_NUMBER.0"
+            yq w -i $CHART_NAME/Chart.yaml version "0.$RELEASE_TAG.0"
       - add_ssh_keys:
           fingerprints:
             - "$SSH_FINGERPRINT"
@@ -38,8 +37,6 @@ jobs:
             git push origin $CIRCLE_BRANCH
 
   package-push-helm-chart:
-    environment:
-      CIRCLE_WORKFLOW_NUMBER: "build-$(echo $CIRCLE_WORKFLOW_ID | grep -oE '[0-9]+')"
     docker:
       - image: cimg/base:stable
     steps:
@@ -47,6 +44,7 @@ jobs:
           name: Install and configure helm
           command: sudo curl -L https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz | tar xz && sudo mv linux-amd64/helm /bin/helm && sudo rm -rf linux-amd64
       - checkout
+      - run: echo 'export RELEASE_TAG=$((RELEASE_NUMBER+1))' >> $BASH_ENV
       - run:
           name: Pull Updated code from repo
           command: git pull origin $CIRCLE_BRANCH
@@ -58,11 +56,9 @@ jobs:
           command: helm registry login $ACR_LOGIN_SERVER --username $ACR_USERNAME --password $ACR_PASSWORD
       - run:
           name: Pushing Helm chart to registry
-          command: helm push "$CHART_NAME-0.$CIRCLE_WORKFLOW_NUMBER.0.tgz" "oci://$ACR_LOGIN_SERVER/helm"
+          command: helm push "$CHART_NAME-0.$RELEASE_TAG.0.tgz" "oci://$ACR_LOGIN_SERVER/helm"
 
   install-helm:
-    environment:
-      CIRCLE_WORKFLOW_NUMBER: "build-$(echo $CIRCLE_WORKFLOW_ID | grep -oE '[0-9]+')"
     executor: azure-aks/default
     parameters:
       cluster-name:
@@ -75,6 +71,7 @@ jobs:
         type: string
     steps:
       - checkout
+      - run: echo 'export RELEASE_TAG=$((RELEASE_NUMBER+1))' >> $BASH_ENV
       - run:
           name: Pull Updated code from repo
           command: git pull origin $CIRCLE_BRANCH
@@ -88,7 +85,7 @@ jobs:
           command: sudo curl -L https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz | tar xz && sudo mv linux-amd64/helm /bin/helm && sudo rm -rf linux-amd64
       - run:
           name: helm install
-          command: bash ./script.sh "0.$CIRCLE_WORKFLOW_NUMBER.0" $NAMESPACE $CHART_NAME $ACR_LOGIN_SERVER
+          command: bash ./script.sh "0.$RELEASE_TAG.0" $NAMESPACE $CHART_NAME $ACR_LOGIN_SERVER
 
 workflows:
   Deploy-App-on-AKS:
