@@ -71,7 +71,7 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: echo 'export RELEASE_TAG=$((CIRCLE_BUILD_NUM-2))' >> $BASH_ENV
+      - run: echo 'export RELEASE_TAG=$((CIRCLE_BUILD_NUM-3))' >> $BASH_ENV
       - run:
           name: Pull Updated code from repo
           command: git pull origin $CIRCLE_BRANCH
