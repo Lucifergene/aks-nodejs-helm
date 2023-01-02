@@ -84,6 +84,9 @@ jobs:
           name: Install and configure helm
           command: sudo curl -L https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz | tar xz && sudo mv linux-amd64/helm /bin/helm && sudo rm -rf linux-amd64
       - run:
+          name: Login to Helm Registry
+          command: helm registry login $ACR_LOGIN_SERVER --username $ACR_USERNAME --password $ACR_PASSWORD
+      - run:
           name: helm install
           command: bash ./script.sh "0.$RELEASE_TAG.0" $NAMESPACE $CHART_NAME $ACR_LOGIN_SERVER
 
