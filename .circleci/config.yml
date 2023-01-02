@@ -21,6 +21,7 @@ jobs:
       - run:
           name: Update Values.yaml
           command: |
+            yq w -i $CHART_NAME/values.yaml image.repository "$ACR_LOGIN_SERVER/$APP_NAME"
             yq w -i $CHART_NAME/values.yaml image.tag "$CIRCLE_SHA1"
             yq w -i $CHART_NAME/Chart.yaml version "0.$CIRCLE_BUILD_NUM.0"
       - add_ssh_keys:
