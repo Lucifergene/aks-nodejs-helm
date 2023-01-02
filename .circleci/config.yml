@@ -18,12 +18,11 @@ jobs:
             $SUDO mv ./yq_linux_amd64 /usr/local/bin/yq
             $SUDO chmod +x /usr/local/bin/yq
       - checkout
-      - run: echo 'export RELEASE_TAG=$((RELEASE_NUMBER+1))' >> $BASH_ENV
       - run:
           name: Update Values.yaml
           command: |
             yq w -i $CHART_NAME/values.yaml image.tag "$CIRCLE_SHA1"
-            yq w -i $CHART_NAME/Chart.yaml version "0.$RELEASE_TAG.0"
+            yq w -i $CHART_NAME/Chart.yaml version "0.$CIRCLE_BUILD_NUM.0"
       - add_ssh_keys:
           fingerprints:
             - "$SSH_FINGERPRINT"
@@ -44,7 +43,7 @@ jobs:
           name: Install and configure helm
           command: sudo curl -L https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz | tar xz && sudo mv linux-amd64/helm /bin/helm && sudo rm -rf linux-amd64
       - checkout
-      - run: echo 'export RELEASE_TAG=$((RELEASE_NUMBER+1))' >> $BASH_ENV
+      - run: echo 'export RELEASE_TAG=$((CIRCLE_BUILD_NUM-1))' >> $BASH_ENV
       - run:
           name: Pull Updated code from repo
           command: git pull origin $CIRCLE_BRANCH
@@ -59,7 +58,8 @@ jobs:
           command: helm push "$CHART_NAME-0.$RELEASE_TAG.0.tgz" "oci://$ACR_LOGIN_SERVER/helm"
 
   install-helm:
-    executor: azure-aks/default
+    docker:
+      - image: cimg/base:stable
     parameters:
       cluster-name:
         description: |
@@ -71,7 +71,7 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: echo 'export RELEASE_TAG=$((RELEASE_NUMBER+1))' >> $BASH_ENV
+      - run: echo 'export RELEASE_TAG=$((CIRCLE_BUILD_NUM-2))' >> $BASH_ENV
       - run:
           name: Pull Updated code from repo
           command: git pull origin $CIRCLE_BRANCH
